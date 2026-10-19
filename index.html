@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Infix to Postfix | Stack Visualizer</title>
+<style>
+:root{--bg:#101820;--panel:#182630;--panel2:#202f3a;--ink:#edf4f3;--muted:#a4b5b8;--line:#334650;--teal:#55d6be;--gold:#f3c969;--red:#ff8e8e;--shadow:0 14px 36px #0002}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top left,#1d3440 0,transparent 45%),var(--bg);color:var(--ink);font:16px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1100px;margin:auto;padding:36px 20px 60px}header{margin-bottom:24px}.eyebrow{color:var(--teal);font-size:.78rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.08;letter-spacing:-.04em;margin:9px 0 12px}h2{font-size:1.22rem;margin:0 0 14px}p{margin:6px 0;color:var(--muted)}.card{background:linear-gradient(145deg,#1b2a34,var(--panel));border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow);margin-top:16px}.inputrow,.controls,.samples{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.expr{flex:1 1 280px;min-width:0;background:#101b22;border:1px solid #425762;color:var(--ink);border-radius:10px;padding:13px 14px;font:600 1rem ui-monospace,SFMono-Regular,Consolas,monospace;outline:none}.expr:focus{border-color:var(--teal);box-shadow:0 0 0 3px #55d6be22}button{cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:10px;padding:10px 14px;font:600 .92rem inherit;transition:transform .15s,border-color .15s}button:hover{border-color:var(--teal);transform:translateY(-1px)}button.primary{background:var(--teal);border-color:var(--teal);color:#10231f;font-weight:800}button:disabled{opacity:.4;cursor:not-allowed;transform:none}.samples{margin-top:12px}.samples span,.muted-label{color:var(--muted);font-size:.86rem}.samples button{padding:6px 10px;font-size:.82rem}.error{color:var(--red);min-height:1.4em;margin-top:8px}.controls{margin-bottom:18px}.speed{margin-left:auto;color:var(--muted);font-size:.85rem;display:flex;gap:8px;align-items:center}.speed input{width:120px;accent-color:var(--teal)}.tokens{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 20px}.token{font:600 .95rem ui-monospace,SFMono-Regular,Consolas,monospace;background:#101b22;border:1px solid var(--line);padding:7px 11px;border-radius:8px}.token.current{background:var(--gold);border-color:var(--gold);color:#172026}.token.done{opacity:.42}.vizgrid{display:grid;grid-template-columns:minmax(180px,.75fr) minmax(0,1.5fr);gap:14px}.vizbox{background:#111d24;border:1px solid var(--line);border-radius:12px;padding:14px;min-height:190px}.vizlabel{font-size:.82rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}.stack{min-height:130px;display:flex;flex-direction:column-reverse;align-items:stretch;gap:6px}.stack .token{color:var(--teal);text-align:center;border-color:#357d75;background:#142c2d}.stack .token.top{border-color:var(--gold);color:var(--gold)}.output{display:flex;gap:6px;flex-wrap:wrap;align-content:flex-start;min-height:55px}.output .token{color:var(--teal);border-color:#357d75}.final{font:700 clamp(1.1rem,3vw,1.55rem) ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--teal);overflow-wrap:anywhere;margin-top:12px}.explanation{border-left:3px solid var(--gold);background:#f3c96912;padding:12px 14px;border-radius:0 9px 9px 0;color:var(--ink);margin-top:16px;min-height:54px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:600px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-size:.76rem;letter-spacing:.06em;text-transform:uppercase}td.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}tr.active{background:#f3c96912}.complexity{display:grid;grid-template-columns:1fr 1fr;gap:14px}.metric{font-size:1.7rem;font-weight:800;color:var(--teal);letter-spacing:-.03em}.metric.gold{color:var(--gold)}.metric-title{font-weight:700}.small{font-size:.9rem}details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;font-weight:700}code{color:var(--gold)}.hidden{display:none!important}footer{color:var(--muted);font-size:.82rem;text-align:center;padding-top:26px}
+@media(max-width:680px){main{padding:25px 13px 40px}.card{padding:15px;border-radius:14px}.vizgrid,.complexity{grid-template-columns:1fr}.vizbox{min-height:150px}.speed{margin-left:0;width:100%}.speed input{flex:1}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="eyebrow">Data Structures · Stack Method</div><h1>Infix to Postfix <span style="color:var(--teal)">Visualizer</span></h1><p>Watch how a standard stack converts an infix expression into postfix, one token at a time.</p></header>
+<section class="card">
+  <h2>Enter an infix expression</h2>
+  <div class="inputrow"><input id="expr" class="expr" value="A+B*(C-D)^E/F" aria-label="Infix expression" spellcheck="false" autocomplete="off"><button id="convert" class="primary">Convert expression</button></div>
+  <div class="samples"><span>Try an example:</span><button data-expr="A+B*(C-D)^E/F">Standard example</button><button data-expr="2^3^2">Exponentiation</button><button data-expr="A-B-C">Associativity</button><button data-expr="(A+B)*(C-D)">Parentheses</button></div><div id="error" class="error" role="alert"></div>
+</section>
+<section id="visualizer" class="card hidden">
+  <div class="controls"><button id="back">← Back</button><button id="next" class="primary">Next step →</button><button id="play">▶ Play</button><button id="finish">Finish</button><label class="speed">Animation speed <input id="speed" type="range" min="250" max="1500" step="50" value="800"></label></div>
+  <div class="muted-label">Input tokens · scanned from left to right</div><div id="tokens" class="tokens"></div>
+  <div class="vizgrid"><div><div class="vizlabel">Operator stack · top highlighted</div><div id="stack" class="vizbox stack"></div></div><div><div class="vizlabel">Postfix output</div><div id="output" class="vizbox output"></div><div id="final" class="final"></div><div id="explanation" class="explanation">Press “Next step” to begin.</div></div></div>
+</section>
+<section id="traceSection" class="card hidden"><h2>Step-by-step trace</h2><p class="small">The table records the stack and output after each token is processed.</p><div class="tablewrap"><table><thead><tr><th>Step</th><th>Token</th><th>Action</th><th>Stack (bottom → top)</th><th>Output</th></tr></thead><tbody id="trace"></tbody></table></div></section>
+<section class="card"><h2>Time and space complexity</h2><div class="complexity"><div><div class="metric">O(n)</div><div class="metric-title">Time complexity</div><p class="small">Each token is scanned once. Every operator is pushed onto the stack once and popped at most once, so the total work grows linearly with the input length.</p></div><div><div class="metric gold">O(n)</div><div class="metric-title">Space complexity</div><p class="small">In the worst case, the operator stack and postfix output can each store a number of tokens proportional to the input length.</p></div></div><p class="small">Here, <code>n</code> represents the number of tokens in the expression.</p></section>
+<section class="card"><h2>Algorithm</h2><ol class="small"><li>Scan the infix expression from left to right.</li><li>Append operands directly to the postfix output.</li><li>Push any opening bracket <code>(</code>, <code>[</code>, or <code>{</code> onto the stack.</li><li>For a closing bracket <code>)</code>, <code>]</code>, or <code>}</code>, pop operators to the output until its matching opening bracket is found, then discard the opening bracket.</li><li>For an operator, pop higher-precedence operators and equal-precedence left-associative operators, then push the current operator.</li><li>At the end, pop all remaining operators to the output.</li></ol></section>
+<section class="card"><h2>Operator precedence</h2><div class="tablewrap"><table><thead><tr><th>Operator</th><th>Precedence</th><th>Associativity</th></tr></thead><tbody><tr><td class="mono">^</td><td>3 · Highest</td><td>Right to left</td></tr><tr><td class="mono">* /</td><td>2 · Medium</td><td>Left to right</td></tr><tr><td class="mono">+ -</td><td>1 · Lowest</td><td>Left to right</td></tr><tr><td class="mono">( )</td><td>Grouping</td><td>Match each pair</td></tr><tr><td class="mono">[ ]</td><td>Grouping</td><td>Match each pair</td></tr><tr><td class="mono">{ }</td><td>Grouping</td><td>Match each pair</td></tr></tbody></table></div></section>
+
+<footer>Infix to Postfix Converter · Standard Stack Approach</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const PREC={'+':1,'-':1,'*':2,'/':2,'^':3};
+const isOp=t=>Object.prototype.hasOwnProperty.call(PREC,t);
+const OPEN_FOR={')':'(',']':'[','}':'{'};
+const isOpen=t=>t==='('||t==='['||t==='{';
+const isClose=t=>Object.prototype.hasOwnProperty.call(OPEN_FOR,t);
+let tokens=[],steps=[],index=0,postfix=[],timer=null;
+
+function tokenize(s){
+  s=s.trim();
+  if(!s)throw Error('Please enter an expression.');
+  const result=[];
+  const re=/\s*([A-Za-z][A-Za-z0-9_]*|\d+(?:\.\d+)?|[+*/^()-]|[\[\]{}])/gy;
+  let p=0,m;
+  while(p<s.length){
+    re.lastIndex=p;m=re.exec(s);
+    if(!m)throw Error('Unexpected character at “'+s[p]+'”. Use variables, numbers, + - * / ^ and brackets (), [], {}.');
+    result.push(m[1]);p=re.lastIndex;
+  }
+  let expectOperand=true;
+  const brackets=[];
+  for(const t of result){
+    if(isOpen(t)){
+      if(!expectOperand)throw Error('Missing operator before “'+t+'”.');
+      brackets.push(t);expectOperand=true;
+    }else if(isClose(t)){
+      if(expectOperand)throw Error('Unexpected closing bracket “'+t+'”.');
+      const opening=brackets.pop();
+      if(!opening)throw Error('Extra closing bracket “'+t+'”.');
+      if(opening!==OPEN_FOR[t])throw Error('Mismatched brackets: “'+opening+'” does not match “'+t+'”.');
+      expectOperand=false;
+    }else if(isOp(t)){
+      if(expectOperand)throw Error('Operator “'+t+'” needs a left operand. Unary operators are not supported.');
+      expectOperand=true;
+    }else{
+      if(!expectOperand)throw Error('Missing operator before “'+t+'”.');
+      expectOperand=false;
+    }
+  }
+  if(expectOperand)throw Error('The expression ends before an operand.');
+  if(brackets.length)throw Error('Missing closing bracket for “'+brackets[brackets.length-1]+'”.');
+  return result;
+}
+
+function makeSteps(ts){
+  const stack=[],out=[],log=[];
+  function snap(i,tok,action){log.push({i,tok,action,stack:[...stack],out:[...out]});}
+  ts.forEach((t,i)=>{
+    if(isOpen(t)){
+      stack.push(t);snap(i,t,'Opening bracket: push “'+t+'” onto the stack.');
+    }else if(isClose(t)){
+      const popped=[];
+      while(stack.length&&stack[stack.length-1]!==OPEN_FOR[t]){
+        if(isOpen(stack[stack.length-1]))throw Error('Mismatched brackets.');
+        const x=stack.pop();out.push(x);popped.push(x);
+      }
+      if(stack.pop()!==OPEN_FOR[t])throw Error('Mismatched brackets.');
+      snap(i,t,'Closing bracket: pop '+(popped.length?popped.join(', '):'no operators')+' to output, then discard matching “'+OPEN_FOR[t]+'”.');
+    }else if(isOp(t)){
+      const popped=[];
+      while(stack.length&&!isOpen(stack[stack.length-1])){
+        const top=stack[stack.length-1];
+        if(PREC[top]>PREC[t]||(PREC[top]===PREC[t]&&t!=='^')){popped.push(stack.pop());out.push(popped[popped.length-1]);}
+        else break;
+      }
+      stack.push(t);
+      snap(i,t,(popped.length?'Pop '+popped.join(', ')+', then ':'No operators need popping; ')+'push “'+t+'” onto the stack.');
+    }else{
+      out.push(t);snap(i,t,'Operand: append “'+t+'” directly to the postfix output.');
+    }
+  });
+  while(stack.length){
+    const x=stack.pop();
+    if(isOpen(x))throw Error('Mismatched brackets.');
+    out.push(x);snap(ts.length,'END','End of input: pop remaining operator “'+x+'” to output.');
+  }
+  if(!log.length||log[log.length-1].tok!=='END')snap(ts.length,'END','End of input: the postfix expression is complete.');
+  return{steps:log,postfix:out};
+}
+
+function chip(text,cls=''){const e=document.createElement('span');e.className='token '+cls;e.textContent=text;return e;}
+function render(){
+  const cur=index?steps[index-1]:null;
+  $('tokens').replaceChildren(...tokens.map((t,i)=>chip(t,cur&&cur.i===i?'current':cur&&cur.i>i?'done':'')));
+  const st=cur?cur.stack:[],out=cur?cur.out:[];
+  $('stack').replaceChildren(...(st.length?st.map((t,i)=>chip(t,i===st.length-1?'top':'')):[]));
+  if(!st.length)$('stack').textContent='Stack is empty';
+  $('output').replaceChildren(...out.map(t=>chip(t)));
+  $('explanation').textContent=cur?'Step '+index+' of '+steps.length+' — '+cur.action:'Press “Next step” to begin.';
+  $('final').textContent=index===steps.length?'Postfix: '+postfix.join(' '):'';
+  $('trace').replaceChildren(...steps.slice(0,index).map((s,i)=>{
+    const tr=document.createElement('tr');if(i===index-1)tr.className='active';
+    [i+1,s.tok,s.action,s.stack.join(' ')||'(empty)',s.out.join(' ')||'(empty)'].forEach((v,j)=>{const td=document.createElement('td');td.textContent=v;if(j===1||j>2)td.className='mono';tr.append(td);});return tr;
+  }));
+  $('back').disabled=index===0;$('next').disabled=index===steps.length;$('finish').disabled=index===steps.length;
+  if(index===steps.length)stop();
+}
+function stop(){if(timer!==null){clearInterval(timer);timer=null;}$('play').textContent='▶ Play';}
+function convert(){
+  stop();$('error').textContent='';
+  try{tokens=tokenize($('expr').value);const r=makeSteps(tokens);steps=r.steps;postfix=r.postfix;index=0;$('visualizer').classList.remove('hidden');$('traceSection').classList.remove('hidden');render();}
+  catch(e){$('error').textContent=e.message;$('visualizer').classList.add('hidden');$('traceSection').classList.add('hidden');}
+}
+$('convert').addEventListener('click',convert);
+$('expr').addEventListener('keydown',e=>{if(e.key==='Enter')convert();});
+document.querySelectorAll('[data-expr]').forEach(b=>b.addEventListener('click',()=>{$('expr').value=b.dataset.expr;convert();}));
+$('back').addEventListener('click',()=>{stop();if(index>0){index--;render();}});
+$('next').addEventListener('click',()=>{if(index<steps.length){index++;render();}});
+$('finish').addEventListener('click',()=>{stop();index=steps.length;render();});
+$('play').addEventListener('click',()=>{if(timer!==null){stop();return;}if(index===steps.length)index=0;$('play').textContent='Ⅱ Pause';timer=setInterval(()=>{if(index<steps.length){index++;render();}else stop();},Number($('speed').value));render();});
+$('speed').addEventListener('change',()=>{if(timer!==null){stop();$('play').click();}});
+convert();
+</script>
+</body>
+</html>
